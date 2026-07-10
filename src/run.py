@@ -18,6 +18,9 @@ app.add_middleware(
 )
 
 # Incluimos las rutas de tus compañeros
+
+
+
 app.include_router(jugador_routes)
 app.include_router(partido_router)
 app.include_router(admin_router)
@@ -27,3 +30,5 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 static_dir = os.path.join(base_dir, "static")
 
 app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+
+app.mount("/", StaticFiles(directory="src/static", html=True), name="static")
