@@ -1,0 +1,5 @@
+from .jugador_repository import JugadorRepository
+from .usuario_repository import UsuarioRepository
+from .partido_repository import PartidoRepository
+from .rendimiento_repository import RendimientoRepository
+from .equipo_repository import EquipoRepository

@@ -1,0 +1,3 @@
+from .jugador_controlador import JugadorControlador 
+from .partido_controlador import PartidoControlador
+from .usuario_controlador import UsuarioControlador
