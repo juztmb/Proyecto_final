@@ -23,7 +23,7 @@ def usuario_factory(doc: dict):
             nombre=doc["nombre"],
             email=doc["correo"],
             contrasena=doc["contrasena"],
-            nombre_usuario=doc['nombre_usuario']
+            nombre_usuario=doc['nombre_usuario'],
             puntos_totales={},
             equipos=[]
         )
