@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Football - Panel de Control</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #1e293b; padding-bottom: 20px; }
+        h1 { color: #38bdf8; margin: 0; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        .card { background-color: #1e293b; padding: 25px; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        h2 { color: #f1f5f9; margin-top: 0; font-size: 1.4rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        label { display: block; margin: 15px 0 5px; color: #94a3b8; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 10px; background-color: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #0284c7; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 20px; transition: 0.2s; }
+        button:hover { background-color: #0369a1; }
+        .btn-simulate { background-color: #10b981; }
+        .btn-simulate:hover { background-color: #059669; }
+        .player-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-height: 400px; overflow-y: auto; }
+        .player-item { display: flex; justify-content: space-between; align-items: center; background-color: #334155; padding: 12px; border-radius: 8px; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        .delantero { background-color: #ef4444; }
+        .medio { background-color: #eab308; color: #000; }
+        .defensa { background-color: #3b82f6; }
+        .portero { background-color: #a855f7; }
+        .stat { background-color: #0f172a; padding: 2px 8px; border-radius: 12px; font-weight: bold; color: #38bdf8; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>⚽ Liga Fantasy - Gestión de Equipos ⚽</h1>
+        <p>Conectado al Backend de Python & MongoDB</p>
+    </header>
+
+    <div class="grid">
+        <div class="card">
+            <h2>👤 Crear Nuevo Jugador</h2>
+            <form id="playerForm">
+                <label for="nombre">Nombre Completo</label>
+                <input type="text" id="nombre" required placeholder="Ej. Erling Haaland">
+
+                <label for="posicion">Posición (Modelo de Fábrica)</label>
+                <select id="posicion">
+                    <option value="delantero">Delantero ⚡</option>
+                    <option value="medio">Mediocampista 🎯</option>
+                    <option value="defensa">Defensa 🛡️</option>
+                    <option value="portero">Portero 🧤</option>
+                </select>
+
+                <label for="goles">Goles / Atajadas Iniciales</label>
+                <input type="number" id="goles" min="0" value="0">
+
+                <label for="asistencias">Asistencias / Partidos Jugados</label>
+                <input type="number" id="asistencias" min="0" value="0">
+
+                <button type="submit">Guardar en MongoDB</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>📋 Plantilla Actualizada</h2>
+            <div id="playerList" class="player-list">
+                <p style="color: #94a3b8;">Cargando jugadores desde el backend...</p>
+            </div>
+            
+            <button class="btn-simulate" id="btnSimulate">🎮 Simular Partido del Equipo</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Configuración de las rutas de la API del backend
+    const API_BASE = 'http://localhost:8000/api/v1';
+
+    // 1. OBTENER TODOS LOS JUGADORES
+    async function fetchPlayers() {
+        const listContainer = document.getElementById('playerList');
+        try {
+            const response = await fetch(`${API_BASE}/jugadores`);
+            const data = await response.json();
+            
+            listContainer.innerHTML = '';
+            if(data.length === 0) {
+                listContainer.innerHTML = '<p style="color: #94a3b8;">No hay jugadores creados todavía.</p>';
+                return;
+            }
+
+            data.forEach(jugador => {
+                const item = document.createElement('div');
+                item.className = 'player-item';
+                const posClass = jugador.posicion.toLowerCase();
+                item.innerHTML = `
+                    <div>
+                        <span class="badge ${posClass}">${jugador.posicion}</span>
+                        <strong>${jugador.nombre}</strong>
+                    </div>
+                    <span class="stat">P: ${jugador.estadisticas?.puntos || 0}</span>
+                `;
+                listContainer.appendChild(item);
+            });
+        } catch (error) {
+            listContainer.innerHTML = '<p style="color: #ef4444;">⚠️ Servidor local apagado. Guarda los cambios para que tus compañeros lo arranquen.</p>';
+        }
+    }
+
+    // 2. CREAR JUGADOR (Envía el payload JSON idéntico a lo que jugador_factory procesa)
+    document.getElementById('playerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const bodyPayload = {
+            nombre: document.getElementById('nombre').value,
+            posicion: document.getElementById('posicion').value,
+            estadisticas: {
+                goles: parseInt(document.getElementById('goles').value),
+                asistencias: parseInt(document.getElementById('asistencias').value)
+            }
+        };
+
+        try {
+            const response = await fetch(`${API_BASE}/jugadores`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bodyPayload)
+            });
+
+            if (response.ok) {
+                alert('¡Jugador procesado por el controlador y guardado!');
+                document.getElementById('playerForm').reset();
+                fetchPlayers();
+            } else {
+                alert('Error en el servidor al intentar registrar el jugador.');
+            }
+        } catch (error) {
+            alert('No se pudo conectar con la API (Recuerda que tus compañeros deben prender el servidor).');
+        }
+    });
+
+    // 3. SIMULAR EQUIPOS (Llama al controlador de simulación)
+    document.getElementById('btnSimulate').addEventListener('click', async () => {
+        try {
+            const response = await fetch(`${API_BASE}/simular`, { method: 'POST' });
+            const resultado = await response.json();
+            alert(`Simulación terminada.\nResultado: ${JSON.stringify(resultado)}`);
+        } catch (error) {
+            alert('Error al lanzar la simulación.');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', fetchPlayers);
+</script>
+</body>
+</html>
