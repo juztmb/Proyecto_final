@@ -12,13 +12,51 @@ from ..models import Rendimiento
 
 
 class PartidoControlador:
+    """Controlador encargado de procesar y persistir los partidos simulados.
+
+    Además de guardar el partido, calcula el rendimiento individual de cada
+    jugador que participó (usando el patrón Strategy vía
+    `factory_estadisticas`) y propaga los puntos obtenidos a los equipos
+    fantasy y a los jugadores mediante el patrón Observer
+    (`PartidoControladorNotifier`).
+
+    Attributes:
+        repository_partido (PartidoRepository): Acceso a datos de partidos.
+        repository_jugador (JugadorRepository): Acceso a datos de jugadores.
+        repository_rendimiento (RendimientoRepository): Acceso a datos de rendimiento.
+        repository_equipo (EquipoRepository): Acceso a datos de equipos fantasy.
+    """
     def __init__(self):
+        """Inicializa el controlador instanciando los repositorios necesarios
+        para procesar un partido (partidos, jugadores, rendimiento y equipos).
+        """
         self.repository_partido = PartidoRepository()
         self.repository_jugador = JugadorRepository()
         self.repository_rendimiento = RendimientoRepository()
         self.repository_equipo = EquipoRepository()
 
     async def crear(self, body:dict):
+        """Procesa el resultado final de un partido y genera los rendimientos.
+
+        Solo procesa partidos cuyo estado sea "finished". El flujo es:
+            1. Construye el objeto `Partido` con la información general.
+            2. Contabiliza goles, tarjetas y sustituciones por equipo.
+            3. Para cada jugador en las alineaciones, calcula minutos jugados
+               y arma sus estadísticas generales del partido.
+            4. Genera las estadísticas específicas por posición (Strategy) y
+               calcula los puntos obtenidos (`Rendimiento`).
+            5. Notifica (Observer) a los controladores de puntos de equipo y
+               de jugador para que actualicen sus totales.
+
+        Args:
+            body (dict): Payload con la información completa del partido
+                (equipos, marcador, goles, tarjetas, sustituciones, alineaciones
+                y estadísticas por equipo).
+
+        Returns:
+            str | None: El id del partido insertado, o None si el partido no
+            está finalizado o si ocurrió un error durante el procesamiento.
+        """
         if body['status'] == 'finished':
 
             try:
@@ -173,6 +211,14 @@ class PartidoControlador:
 
        
     async def obtener_por_id(self, partido_id: str):
+        """Busca un partido por su identificador.
+
+        Args:
+            partido_id (str): Identificador del partido.
+
+        Returns:
+            dict | None: Documento del partido encontrado.
+        """
         try:
             print(partido_id)
             partido = await self.repository_partido.obtener_por_id(partido_id)
@@ -181,12 +227,26 @@ class PartidoControlador:
             print(e)
     
     async def obtener_todos(self):
+        """Obtiene todos los partidos registrados.
+
+        Returns:
+            list[dict] | None: Lista de partidos.
+        """
         try:
             return await self.repository_partido.obtener_todos()
         except Exception as e:
             print(e)
     
     async def actualizar(self, body:dict):
+        """Actualiza la información de un partido existente.
+
+        Args:
+            body (dict): Debe incluir la clave "_id" con el identificador del
+                partido y el resto de campos a actualizar.
+
+        Returns:
+            int | None: Cantidad de documentos modificados.
+        """
         try:
             partido_id = body["_id"]
             del body["_id"]
@@ -195,6 +255,14 @@ class PartidoControlador:
             print(e)
     
     async def eliminar(self, partido_id: str):
+        """Elimina un partido de la base de datos.
+
+        Args:
+            partido_id (str): Identificador del partido a eliminar.
+
+        Returns:
+            int | None: Cantidad de documentos eliminados.
+        """
         try:
             return await self.repository_partido.eliminar(partido_id)
         except Exception as e:
@@ -203,7 +271,23 @@ class PartidoControlador:
 
 
 def armar_jugador(jugador_id, estadisticas, posicion, puntos):
+    """Construye el diccionario de actualización de un jugador tras un partido.
 
+    Se usa como paso previo a notificar (Observer) a los controladores que
+    actualizan los puntos del jugador y de los equipos fantasy que lo tienen.
+
+    Args:
+        jugador_id (str): Identificador del jugador.
+        estadisticas (dict): Estadísticas obtenidas del partido (goles,
+            asistencias, tarjetas, atajadas, etc.).
+        posicion (str): Posición del jugador ("Portero", "Defensa",
+            "Medio" o "Delantero").
+        puntos (float): Puntos totales calculados para el jugador en el partido.
+
+    Returns:
+        dict: Diccionario con la información resumida del jugador lista para
+        ser enviada a los observadores.
+    """
     if posicion == 'Portero':
         return {
             "_id": jugador_id,
