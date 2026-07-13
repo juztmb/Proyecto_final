@@ -14,6 +14,24 @@ router_cliente = APIRouter(prefix="/cliente", tags=["Usuarios"])
 # Instanciamos el controlador
 controller = UsuarioControlador()
 
+@router_cliente.post("/login")
+async def loguear(request: Request):
+    try:
+        body = await request.json()
+        return await controller.obtener_por_correo(body)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+
+@router_cliente.get("/verificarE/{correo_info}")
+async def verificar(correo_info: str):
+    try:
+        
+        return await controller.verificar_email(correo_info)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 
 @router_cliente.post("/create")
 async def crear(request: Request):

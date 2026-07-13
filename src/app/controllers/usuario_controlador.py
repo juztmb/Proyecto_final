@@ -20,6 +20,49 @@ class UsuarioControlador:
         self.reposiroty_equipo = EquipoRepository()
 
 
+    async def obtener_por_correo(self, body:dict):
+        try:
+            print(body)
+            correo = body.get('correo',"")
+            usuario = await self.repository_usuario.obtener_por_correo(correo)
+            if usuario != None:
+                print('entra a este')
+                if usuario.get('contraseña') == body.get('contrasena'):
+                    print('completa la validacion')
+                    return {
+                        'id': str(usuario["_id"]),
+                        'correo': usuario.get('email')
+                    }
+                else:
+                    return {
+                        'correo': None ,
+                        'contrasena': None
+                        
+                    }
+                    
+            else:
+                print("usuario no existe")
+                return { 'correo': None ,
+                        'contrasena': None}
+        except Exception as e:
+            print("error", e)
+
+    
+    async def verificar_email(self, correo: str):
+        try:
+            print(correo)
+            usuario = await self.repository_usuario.obtener_por_correo(correo)
+            if usuario != None:
+                return {
+                    'existe' : True
+                }
+            else:
+                return{
+                    'existe': False
+                }
+        except Exception as e:
+            print("error", e)
+
     async def crear(self, body:dict):
         """Crea un nuevo usuario (cliente o administrador) según el body recibido.
 
@@ -27,12 +70,13 @@ class UsuarioControlador:
             body (dict): Datos del usuario a crear (nombre, correo, contraseña, token, etc.).
 
         Returns:
-            str | None: El id del usuario insertado, o None si ocurrió un error.
+            {'id': str} | {'id', None}: El id del usuario insertado, o None si ocurrió un error.
         """
         try:
             print(body)
             usuario = usuario_factory(body)
-            return await self.repository_usuario.crear(usuario.to_dict())
+            info_usuario = await self.repository_usuario.crear(usuario.to_dict())
+            return {'id': info_usuario}
         except Exception as e:
             print("error", e)
         

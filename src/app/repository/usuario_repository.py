@@ -51,6 +51,7 @@ class UsuarioRepository:
         Returns:
             dict | None: Documento del usuario encontrado, o None si no existe.
         """
+        print(correo)
         return await self.collection.find_one({"email": correo})
     
     async def obtener_todos(self):

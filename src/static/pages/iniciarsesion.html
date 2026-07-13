@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fantasy Mundial 26 — Acceso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="side">
+  <div class="circle"></div>
+  <div class="logo">⚽ FANTASY <span>MUNDIAL 26</span></div>
+
+  <div class="side-copy">
+    <h1>Tu liga privada<br>empieza <em>aquí</em></h1>
+    <p>Inicia sesión o crea tu cuenta para armar tu equipo, invitar a tus amigos y seguir tus puntos en cada partido del Mundial.</p>
+    <div class="mini-formation">
+      <div class="puck gk" style="animation-delay:.05s">1</div>
+      <div class="puck df" style="animation-delay:.1s">2</div>
+      <div class="puck df" style="animation-delay:.15s">4</div>
+      <div class="puck md" style="animation-delay:.2s">8</div>
+      <div class="puck md" style="animation-delay:.25s">10</div>
+      <div class="puck fw" style="animation-delay:.3s">9</div>
+      <div class="puck fw" style="animation-delay:.35s">7</div>
+    </div>
+  </div>
+
+  <div class="side-foot">
+    <div>48<span>Selecciones</span></div>
+    <div>Live<span>Puntaje en vivo</span></div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="card">
+    <div class="card-logo">⚽ FANTASY <span>MUNDIAL 26</span></div>
+
+    <div class="tabs">
+      <button class="tab active" id="tabLogin" onclick="switchTab('login')">Iniciar sesión</button>
+      <button class="tab" id="tabRegister" onclick="switchTab('register')">Crear cuenta</button>
+    </div>
+
+    <!-- LOGIN -->
+    <form id="loginForm" class="active" onsubmit="return handleLogin(event)">
+      <h2 class="form-title">Hola de nuevo</h2>
+      <p class="form-sub">Entra a tu cuenta para revisar tu equipo.</p>
+      <div class="field">
+        <label for="loginEmail">Correo electrónico</label>
+        <input type="email" id="loginEmail" placeholder="tucorreo@ejemplo.com" required>
+        <div class="error-msg" id="loginEmailError">Ingresa un correo válido.</div>
+      </div>
+
+      <div class="field">
+        <label for="loginPassword">Contraseña</label>
+        <div class="pw-wrap">
+          <input type="password" id="loginPassword" placeholder="••••••••" required>
+          <button type="button" class="pw-toggle" onclick="togglePw('loginPassword', this)">Ver</button>
+        </div>
+        <div class="error-msg" id="loginPasswordError">Tu contraseña es incorrecta.</div>
+      </div>
+
+      <div class="row-between">
+        <label class="remember"><input type="checkbox"> Recordarme</label>
+        <a href="#" class="link">¿Olvidaste tu contraseña?</a>
+      </div>
+      <div class="div-centered">
+            <button type="submit" class="btn-primary">Iniciar sesión</button>
+      </div>
+      
+
+      <div class="switch-line">¿No tienes cuenta? <a href="#" class="link" onclick="switchTab('register'); return false;">Regístrate gratis</a></div>
+    </form>
+
+    <!-- REGISTER -->
+    <form id="registerForm" onsubmit="return handleRegister(event)">
+      <h2 class="form-title">Crea tu cuenta</h2>
+      <p class="form-sub">Es gratis y toma menos de un minuto.</p>
+
+      <div class="field">
+        <label for="nombreCom">Nombre Completo</label>
+        <input type="text" id="nombreCom" placeholder="Ej. Juan Carlos" required>
+      </div>
+
+      <div class="field">
+        <label for="userName">Nombre de usuario</label>
+        <input type="text" id="userName" placeholder="Ej. JuanCaBo" required>
+      </div>
+
+      <div class="field">
+        <label for="regEmail">Correo electrónico</label>
+        <input type="email" id="regEmail" placeholder="tucorreo@ejemplo.com" required>
+        <div class="error-msg" id="regEmailError">Ese correo ya está registrado.</div>
+      </div>
+
+      <div class="field">
+        <label for="regPassword">Contraseña</label>
+        <div class="pw-wrap">
+          <input type="password" id="regPassword" placeholder="Mínimo 8 caracteres" required oninput="checkStrength(this.value)">
+          <button type="button" class="pw-toggle" onclick="togglePw('regPassword', this)">Ver</button>
+        </div>
+        <div class="strength"><div class="strength-bar" id="strengthBar"></div></div>
+      </div>
+
+      <div class="field">
+        <label for="regPasswordConfirm">Confirmar contraseña</label>
+        <input type="password" id="regPasswordConfirm" placeholder="Repite tu contraseña" required>
+        <div class="error-msg" id="regConfirmError">Las contraseñas no coinciden.</div>
+      </div>
+      <div class="div-centered">
+        <button type="submit" class="btn-primary">Crear mi equipo gratis</button>
+      </div>
+      
+      <p class="terms">Al crear tu cuenta aceptas las Reglas de la liga y la Política de privacidad de Fantasy Mundial 26.</p>
+
+      <div class="switch-line">¿Ya tienes cuenta? <a href="#" class="link" onclick="switchTab('login'); return false;">Inicia sesión</a></div>
+    </form>
+  </div>
+</div>
+
+<script src="../js/iniciarsesion.js">
+  
+</script>
+
+</body>
+</html>
