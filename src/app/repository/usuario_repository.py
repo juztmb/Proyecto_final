@@ -78,7 +78,35 @@ class UsuarioRepository:
             {"$set": datos}
         )
         return result.modified_count
-
+    
+    async def agregar_equipo(self, usuario_id: str, equipo_info: dict):
+        print(usuario_id)
+        print(equipo_info)
+        result = await self.collection.update_one(
+            {"_id": ObjectId(usuario_id)},
+            {
+                    "$addToSet": {
+                        "equipos": {'id': equipo_info}
+                    }
+            }
+        )
+        
+        return result
+    
+    async def eliminar_equipo(self, usuario_id: str, equipo_id):
+        result = await self.collection.update_one(
+            {'_id': ObjectId(usuario_id)},
+            {
+                "$pull":{
+                    'equipos':{
+                        "id": equipo_id
+                    }
+                }
+            }
+        )
+        return result
+    
+    
     async def eliminar(self, usuario_id: str):
         """Elimina un usuario de la base de datos.
 

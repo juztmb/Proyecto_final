@@ -39,7 +39,7 @@ class Cliente(Usuarios):
         self.__puntos_totales = puntos_totales
         self.__equipos = equipos
         self.__token = "NA"
-    
+
     def to_dict(self) -> dict:
         """
             Convierte los atributos base a diccionario.

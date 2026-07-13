@@ -65,6 +65,10 @@ class EquipoRepository:
         )
         return result.modified_count
     
+    async def obtener_x_usuario_id(self, usuario_id):
+        lista_equipos = await self.collection.find({'id_usuario': usuario_id}).to_list(length=None)
+        return lista_equipos
+    
     async def actualizar_varios_equipos(self, jugador_id, puntos):
         """Suma puntos a todos los equipos fantasy que tengan a un jugador.
 
@@ -81,9 +85,9 @@ class EquipoRepository:
             (incluye cantidad de documentos encontrados y modificados).
         """
         result = await self.collection.update_many(
-        { f"jugadores_en_equipo.{jugador_id}": {"$exists": True}},
+        { "jugadores_en_equipo.id": jugador_id},
         { "$inc": { 
-            f"jugadores_en_equipo.{jugador_id}.puntos": puntos,
+            f"jugadores_en_equipo.$.puntos": puntos,
             "puntos": puntos
             }})
         return result

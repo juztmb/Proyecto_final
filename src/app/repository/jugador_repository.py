@@ -1,5 +1,6 @@
 from bson import ObjectId
 from ..config import conexion
+import re
 
 
 class JugadorRepository:
@@ -39,7 +40,13 @@ class JugadorRepository:
         """
         jugador = await self.collection.find_one({"_id": jugador_id})
         return jugador
-    
+    async def obtener_por_nombre_regex(self,nombre_jugador: str):
+        lista_jugadores= await self.collection.find({
+            "nombre": {
+                "$regex": re.escape(nombre_jugador),
+                "$options": "i"
+            }
+        }).limit(10).to_list(length=10)
     async def obtener_por_nombre(self, nombre_jugador :str):
         """Busca un jugador por su nombre.
 

@@ -11,7 +11,7 @@ class EquipoFantasy:
             con los jugadores fichados y sus puntos acumulados.
         puntos (int): Puntos totales acumulados por el equipo.
     """
-    def __init__(self, id_usuario, nombre_equipo, jugadores_en_equipo={}, puntos=0):
+    def __init__(self, id_usuario, nombre_equipo, color, jugadores_en_equipo=[], puntos=0):
         """Inicializa un equipo fantasy.
 
         Args:
@@ -25,6 +25,8 @@ class EquipoFantasy:
         self.__nombre_equipo = nombre_equipo
         self.__jugadores_en_equipo = jugadores_en_equipo
         self.__puntos = puntos
+        self.__color = color
+        self.__presupuesto = 500000
 
     def agregar_jugador(self, jugador_id):
         """Ficha un jugador para el equipo (mercado de fichajes).
@@ -44,6 +46,7 @@ class EquipoFantasy:
 
         self.__puntos = suma
 
+
     def to_dict(self) -> dict:
         """Convierte el equipo a diccionario para persistirlo en la base de datos.
 
@@ -54,6 +57,8 @@ class EquipoFantasy:
             'id_usuario' : self.__id_usuario,
             'nombre_equipo' : self.__nombre_equipo,
             'jugadores_en_equipo': self.__jugadores_en_equipo,
-            'puntos': self.__puntos
+            'puntos': self.__puntos,
+            'color': self.__color,
+            'presupuesto': self.__presupuesto
         }
         return data

@@ -32,6 +32,13 @@ async def verificar(correo_info: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router_cliente.get('/equiposByIdUsuario/{usuario_id}')
+async def obtener_equipos(usuario_id: str):
+    try:
+        return await controller.obtener_equipos(usuario_id)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
 
 @router_cliente.post("/create")
 async def crear(request: Request):
@@ -73,6 +80,16 @@ async def crear_equipo(request: Request):
         return await controller.crear_equipo(body)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+@router_cliente.delete("/deleteEquipo")
+async def eliminar_equipo(request :Request):
+    try:
+        body = await request.json()
+        return await controller.eliminar_equipobyID(body)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+
 @router_cliente.post('/agregar_jugador')
 async def agregar_jugador_a_equipo(request: Request):
     """Ficha un jugador para un equipo fantasy (mercado de fichajes).
@@ -93,6 +110,13 @@ async def agregar_jugador_a_equipo(request: Request):
         return await controller.agregar_jugador_equipo(body)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+@router_cliente.get('/obtenerJugador/{nombre_id}')
+async def obtener_jugador_x_nombreReg(nombre_id : str ):
+    try:
+        return await controller.obtener_jugadorPorRegex(nombre_id)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
 @router_cliente.put("/actualizar")
 async def actualizar_usuario(request: Request):
     """Actualiza la información de un cliente existente.

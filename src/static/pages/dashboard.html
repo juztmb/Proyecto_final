@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fantasy Mundial 26 — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">⚽ FANTASY <span>MUNDIAL 26</span></div>
+    <ul class="nav-group">
+      <li><button class="nav-item active"><span class="ic">🏠</span> Dashboard</button></li>
+      <li><button class="nav-item"><span class="ic">👥</span> Mis equipos</button></li>
+      <li><button class="nav-item"><span class="ic">🏆</span> Mi liga</button></li>
+      <li><button class="nav-item"><span class="ic">📊</span> Estadísticas</button></li>
+      <li><button class="nav-item"><span class="ic">⚙️</span> Configuración</button></li>
+    </ul>
+    <div class="sidebar-foot">
+      <div class="avatar">MR</div>
+      <div><strong>Mateo Rivas</strong><span>Manager</span></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex; align-items:center;">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <div class="topbar-title">
+          <h1>Tus equipos</h1>
+          <p>Administra tus equipos y su plantilla para el Mundial 2026</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div class="search">🔍 <input type="text" placeholder="Buscar jugador o equipo..." id="searchInput"></div>
+        <button class="btn-primary" id="btnNewTeamTop">+ Nuevo equipo</button>
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div><strong id="statTeams">0</strong><span>equipos creados</span></div>
+      <div><strong id="statPlayers">0</strong><span>jugadores en plantilla</span></div>
+      <div><strong id="statPoints">0</strong><span>puntos totales</span></div>
+      <div><strong>#128</strong><span>posición en tu liga</span></div>
+    </div>
+
+    <div class="section-head">
+      <h2>Mis equipos</h2>
+      <span class="count" id="teamsCount">0 equipos</span>
+    </div>
+    <div class="teams-grid" id="teamsGrid"></div>
+
+    <div class="section-head">
+      <h2 id="rosterTitle">Plantilla</h2>
+    </div>
+    <div class="roster-panel" id="rosterPanel">
+      <div class="roster-empty">Selecciona un equipo arriba para ver y editar su plantilla.</div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal: crear equipo -->
+<div class="overlay" id="teamOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Crear nuevo equipo</h3>
+      <button class="modal-close" onclick="closeModal('teamOverlay')">✕</button>
+    </div>
+    <form class="form-modal" onsubmit="return createTeam(event)">
+      <div class="field">
+        <label for="newTeamName">Nombre del equipo</label>
+        <input type="text" id="newTeamName" placeholder="Ej. Los Invencibles FC" required>
+      </div>
+      <div class="field">
+        <label>Color del escudo</label>
+        <div class="crest-picker" id="crestPicker"></div>
+      </div>
+      <button type="submit" class="btn-primary" style="width:100%;">Crear equipo</button>
+    </form>
+    
+  </div>
+</div>
+
+<!-- Modal: agregar jugador -->
+<div class="overlay" id="playerOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Agregar jugador</h3>
+      <button class="modal-close" onclick="closeModal('playerOverlay')">✕</button>
+    </div>
+    <form onsubmit="return addPlayer(event)" class="form-modal">
+      <div class="field">
+        <label for="playerName">Nombre completo</label>
+        <input type="text" id="playerName" placeholder="Nombre del jugador" required>
+      </div>
+      <div class="field">
+        <label for="playerPos">Posición</label>
+        <select id="playerPos">
+          <option value="delantero">Delantero ⚡</option>
+          <option value="medio">Mediocampista 🎯</option>
+          <option value="defensa">Defensa 🛡️</option>
+          <option value="portero">Portero 🧤</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="playerGoals">Goles / Atajadas</label>
+          <input type="number" id="playerGoals" min="0" value="0">
+        </div>
+        <div class="field">
+          <label for="playerAssists">Asistencias</label>
+          <input type="number" id="playerAssists" min="0" value="0">
+        </div>
+      </div>
+      <button type="submit" class="btn-primary" style="width:100%;">Agregar a la plantilla</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="../js/dashboard.js"></script>
+
+</body>
+</html>

@@ -2,6 +2,7 @@ from ..repository import UsuarioRepository
 from ..models import usuario_factory
 from ..repository import EquipoRepository
 from ..models import EquipoFantasy
+from ..repository import JugadorRepository
 
 class UsuarioControlador:
     """Controlador encargado de la lógica de negocio de usuarios y equipos fantasy.
@@ -18,7 +19,7 @@ class UsuarioControlador:
         """Inicializa el controlador con los repositorios de usuarios y equipos."""
         self.repository_usuario = UsuarioRepository()
         self.reposiroty_equipo = EquipoRepository()
-
+        self.repository_jugador = JugadorRepository()
 
     async def obtener_por_correo(self, body:dict):
         try:
@@ -31,7 +32,8 @@ class UsuarioControlador:
                     print('completa la validacion')
                     return {
                         'id': str(usuario["_id"]),
-                        'correo': usuario.get('email')
+                        'correo': usuario.get('email'),
+                        'nombre_usuario': usuario.get('nombre_usuario')
                     }
                 else:
                     return {
@@ -63,6 +65,32 @@ class UsuarioControlador:
         except Exception as e:
             print("error", e)
 
+    async def obtener_equipos(self, usuario_id: str):
+        try:
+            print(usuario_id)
+            equipos = await self.reposiroty_equipo.obtener_x_usuario_id(usuario_id)
+            if equipos != None:
+                print(equipos)
+                lista_equipos = []
+                for equipo in equipos:
+                    
+                    datos = {
+                        'id': str(equipo['_id']),
+                        'name': equipo['nombre_equipo'],
+                        'crest': equipo['color'],
+                        'players': equipo['jugadores_en_equipo'],
+                        'points': equipo['puntos']
+
+                    }
+                    print()
+                    lista_equipos.append(datos)
+                return lista_equipos
+            else:
+                return{
+                    []
+                }
+        except Exception as e:
+            print("error", e)
     async def crear(self, body:dict):
         """Crea un nuevo usuario (cliente o administrador) según el body recibido.
 
@@ -90,8 +118,12 @@ class UsuarioControlador:
             str | None: El id del equipo insertado, o None si ocurrió un error.
         """
         try:
-            equipo = EquipoFantasy(id_usuario=body.get('id_usuario'),nombre_equipo=body.get('nombre_equipo'))
-            return await self.reposiroty_equipo.crear(equipo.to_dict())
+            equipo = EquipoFantasy(id_usuario=body.get('id_usuario'),nombre_equipo=body.get('nombre_equipo'),color=body.get('color'))
+            equipo_ingresado = await self.reposiroty_equipo.crear(equipo.to_dict())
+            print('este equipo fue ingresado', equipo_ingresado)
+            info = await self.repository_usuario.agregar_equipo(usuario_id=body.get('id_usuario'),equipo_info=equipo_ingresado)
+            print("esta es la informacion: ", info)
+            return equipo_ingresado
         except Exception as e:
             print('error', e)
     
@@ -153,6 +185,33 @@ class UsuarioControlador:
         except Exception as e:
             print(e)
     
+    async def eliminar_equipobyID(self, body: dict):
+        try:
+            usuario_id = body.get('usuario_id')
+            equipo_id = body.get('equipo_id')
+            response_equipo = await self.reposiroty_equipo.eliminar(equipo_id)
+            await self.repository_usuario.eliminar_equipo(usuario_id=usuario_id, equipo_id=equipo_id)
+            return response_equipo
+        except Exception as e:
+            print(e)
+    
+    async def obtener_jugadorPorRegex(self,nombre: str):
+        try:
+            jugadores = []
+            lista_jugadores = await self.repository_jugador.obtener_por_nombre_regex(nombre_jugador=nombre)
+            for jugador in lista_jugadores:
+                data = {
+                    'id': str(jugador.get('_id')),
+                    'nombre': jugador.get('nombre'),
+                    'posicion' : jugador.get('posicion'),
+                    'precio' : jugador.get('precio'),
+                    'equipo': jugador.get('equipo')
+                }
+                jugadores.append(data)
+            return jugadores
+        except Exception as e:
+            print(e)
+
     async def actualizar(self, body:dict):
         """Actualiza la información de un usuario existente.
 

@@ -58,7 +58,14 @@ async function handleLogin(e){
         console.log(info)         
         if (info.correo != null) {
           
-          alert('Sesion iniciada');} 
+          
+          localStorage.setItem("userinfo", JSON.stringify(info));
+          window.location.href = "../pages/dashboard.html";
+
+
+        }
+
+          
         else {
             console.log(info.id)                
             alert('Error en el servidor al intentar iniciar sesion.');}} 
@@ -89,12 +96,10 @@ async function handleRegister(e){
       'contrasena': pw,
       'token': 'NA'
     }
-    console.log('aqui entra')
     try { 
       const response = await fetch(`${API_BASE}/verificarE/${document.getElementById('regEmail').value}`, { 
         method: 'GET',                
         headers: { 'Content-Type': 'application/json' }}); 
-        console.log('llega aqui')
         const info = await response.json()
         console.log(info)         
         if (info.existe) {
