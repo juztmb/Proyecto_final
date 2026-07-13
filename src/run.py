@@ -5,6 +5,7 @@ import os
 from app.routes.jugador_routes import router as jugador_routes
 from app.routes import router_partido as partido_router
 from app.routes import router_administrador as admin_router
+from app.routes import router_cliente as cliente_router
 
 app = FastAPI(title="API MVC con MongoDB (Sin Beanie)")
 
@@ -24,6 +25,7 @@ app.add_middleware(
 app.include_router(jugador_routes)
 app.include_router(partido_router)
 app.include_router(admin_router)
+app.include_router(cliente_router)
 
 # Como 'static' está en la misma carpeta que 'run.py', solo necesitamos un nivel
 base_dir = os.path.dirname(os.path.abspath(__file__))

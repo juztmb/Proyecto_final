@@ -55,7 +55,7 @@ async def crear_equipo(request: Request):
         return await controller.crear_equipo(body)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-router_cliente.post('/agregar_jugador')
+@router_cliente.post('/agregar_jugador')
 async def agregar_jugador_a_equipo(request: Request):
     """Ficha un jugador para un equipo fantasy (mercado de fichajes).
 
