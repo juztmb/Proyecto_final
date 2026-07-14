@@ -9,12 +9,20 @@ let teams = [
 async function verificarYFetch() {
     // 1. Leer la variable del localStorage
     const miVariable = localStorage.getItem('userinfo');
-
+    
     // 2. Verificar si existe (y si no está vacía)
     if (miVariable) {
         console.log('Variable encontrada. Solicitando datos a la API local...');
         console.log(miVariable)
         try {
+            const iniciales = document.querySelector('.avatar-persona')
+            const nombreUser = document.querySelector('.nombre-persona')
+            const texto_iniciales = JSON.parse(miVariable).nombre_usuario
+            console.log(texto_iniciales)
+            if (texto_iniciales != null){
+              iniciales.innerText = texto_iniciales.slice(0,2)
+              nombreUser.innerText = texto_iniciales
+            }
             // 3. Hacer el llamado a tu API local
             // Puedes pasar la variable en los headers, query params o en el body si fuera un POST
             const usuario_id = JSON.parse(miVariable).id
@@ -266,27 +274,44 @@ function addPlayer(e){
     return false;
   }
 
-function removePlayer(teamId, playerId){
+async function removePlayer(teamId, playerId){
     const team = teams.find(t => t.id === teamId);
     if(!team) return;
     const player = team.players.find(p => p.id === playerId);
     if(!player) return;
-
+    const infoEliminar={
+      'jugador_id': playerId,
+      'equipo_id': teamId
+    }
     team.players = team.players.filter(p => p.id !== playerId);
-    team.points -= player.puntos;
-
+    const response = await fetch(`${API_BASE}/deleteJugadorEquipo`,
+        {
+            method: "DELETE",
+            headers:{'Content-Type':'application/json'}, 
+            body: JSON.stringify(infoEliminar) 
+        }
+    )
+    const responseJson = await response.json()
+    console.log(responseJson)
     renderTeams();
     renderRoster();
     showToast(`${player.nombre} fue removido del equipo`);
   }
 
 function openModal(id){
-    if(id === 'teamOverlay') renderCrestPicker();
-    document.getElementById(id).classList.add('open')
-    const modal = document.getElementById(id).firstElementChild
-    console.log(modal)
-    modal.querySelector('.form-modal').classList.add('active')
-  }
+    if(id === 'teamOverlay') 
+    {
+      document.getElementById(id).classList.add('open')
+      renderCrestPicker();
+      const modal = document.getElementById(id).firstElementChild
+      console.log(modal)
+      modal.querySelector('.form-modal').classList.add('active')}
+    if(id === 'playerOverlay'){
+      document.getElementById(id).classList.add('open')
+      const team = teams.find(t => t.id === selectedTeamId);
+      document.getElementById('catalogTarget').textContent = team ? `Agregando a: ${team.name}` : 'Selecciona un equipo primero';
+  }}
+
 function closeModal(id){
     document.getElementById(id).classList.remove('open');
   }
@@ -358,4 +383,105 @@ async function actualizarEquipo() {
         } catch (error) {
             console.error('Hubo un problema con la API local:', error);
         }
+}
+
+// Variable global para controlar el temporizador del debounce
+let debounceTimer;
+
+function filterCatalog() {
+  const query = document.getElementById('catalogSearch').value.trim();
+  const grid = document.getElementById('catalogGrid');
+
+  // Limpiar el temporizador anterior cada vez que el usuario presione una tecla
+  clearTimeout(debounceTimer);
+
+  // Si el buscador está vacío, puedes limpiar el grid o mostrar un mensaje
+  if (query === '') {
+    grid.innerHTML = '<div class="catalog-state">Escribe el nombre de un jugador para buscar...</div>';
+    return;
+  }
+
+  // Mostrar indicador de carga mientras espera a que termine de escribir
+  grid.innerHTML = '<div class="catalog-state"><div class="spinner"></div>Buscando...</div>';
+
+  // Esperar 500ms después de que el usuario deje de escribir para hacer la petición
+  debounceTimer = setTimeout(() => {
+    fetchPlayersFromServer(query);
+  }, 500); 
+}
+
+// Función que realiza la petición al servidor
+async function fetchPlayersFromServer(query) {
+  const grid = document.getElementById('catalogGrid');
+
+  try {
+    // Reemplaza esta URL por la de tu API real
+    const response = await fetch(`${API_BASE}/obtenerJugador/${query}`);
+    
+    if (!response.ok) {
+      throw new Error('Error en la respuesta del servidor');
+    }
+
+    const players = await response.json();
+    
+    // Renderizar las tarjetas con los datos obtenidos
+    renderPlayerCards(players);
+
+  } catch (error) {
+    console.error('Error al obtener jugadores:', error);
+    grid.innerHTML = '<div class="catalog-state">⚠️ Error al cargar los jugadores. Inténtalo de nuevo.</div>';
+  }
+}
+
+// Función para crear y renderizar las tarjetas en el HTML
+function renderPlayerCards(players) {
+  const grid = document.getElementById('catalogGrid');
+  grid.innerHTML = ''; // Limpiar el estado de carga
+
+  if (players.length === 0) {
+    grid.innerHTML = '<div class="catalog-state">No se encontraron jugadores.</div>';
+    return;
+  }
+
+  // Iterar sobre la lista de jugadores y crear el HTML de las tarjetas
+  players.forEach(player => {
+    const card = document.createElement('div');
+    card.className = 'player-card';
+    
+    // Estructura de la tarjeta (ajusta las propiedades según tu base de datos, ej: player.name, player.photo, etc.)
+    card.innerHTML = `
+      <div class="player-info ${player.id}">
+        <h4>${player.nombre}</h4>
+        <p class="player-position-badge player-position-${player.posicion}">${player.posicion || 'Sin posición'}</p>
+        <p class="player-price">${player.precio} </p>
+        <p>${player.equipo} </p>
+      </div>
+      <button class="btn-select" onclick="selectPlayer('${player.id}', '${player.name}')">Seleccionar</button>
+    `;
+    
+    grid.appendChild(card);
+  });
+}
+
+// Acción de ejemplo para cuando se hace clic en una tarjeta
+async function selectPlayer(id, name) {
+  console.log(selectedTeamId);
+  //agregar_jugador
+  //
+  try{
+  const response = await fetch(`${API_BASE}/agregar_jugador`, 
+      { method:'POST', 
+        headers:{'Content-Type':'application/json'}, 
+        body: JSON.stringify({'jugador_id': id, 'equipo_id': selectedTeamId}) 
+      });
+    const responseJson = await response.json()
+    await actualizarEquipo();
+    renderTeams();
+    renderRoster();
+    closeModal('playerOverlay');
+  }
+  catch(error){
+    alert('ocurrio un error al agregar el jugador')
+  }
+  
 }

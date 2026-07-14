@@ -26,7 +26,7 @@ class EquipoFantasy:
         self.__jugadores_en_equipo = jugadores_en_equipo
         self.__puntos = puntos
         self.__color = color
-        self.__presupuesto = 500000
+        self.__presupuesto = 100000000
 
     def agregar_jugador(self, jugador_id):
         """Ficha un jugador para el equipo (mercado de fichajes).

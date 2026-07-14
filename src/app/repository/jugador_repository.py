@@ -47,6 +47,7 @@ class JugadorRepository:
                 "$options": "i"
             }
         }).limit(10).to_list(length=10)
+        return lista_jugadores
     async def obtener_por_nombre(self, nombre_jugador :str):
         """Busca un jugador por su nombre.
 

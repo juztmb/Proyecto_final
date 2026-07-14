@@ -138,19 +138,34 @@ class UsuarioControlador:
             jugador ya estaba en el equipo o si ocurrió un error.
         """
         try:
-            equipo_info = await self.reposiroty_equipo.obtener_por_id(equipo_id=body['equipo_id'])
-            equipo_obj = EquipoFantasy(
-                id_usuario=equipo_info["id_usuario"],
-                nombre_equipo=equipo_info['equipo_id'],
-                jugadores_en_equipo=equipo_info['jugadores_en_equipo'],
-                puntos=equipo_info['puntos']
-            )
-            if equipo_info.get('jugadores_en_equipo',{}).get(body['jugador_id'], {})  == {}:
-                equipo_obj.agregar_jugador(body['jugador_id'])
-                return await self.reposiroty_equipo.actualizar(body['equipo_id'],equipo_obj.to_dict())
-            else:
-                print('El jugador ya se encuentra en el equipo')
-                return None
+            #{'id': jugador_info.get('id'), 'precio': jugador_info.get('precio'), 'posicion':jugador_info.get('posicion'), 'nombre': jugador_info.get('nombre')}
+            
+            print(body)
+            equipo_id = body.get('equipo_id')
+            equipo = await self.reposiroty_equipo.obtener_por_id(equipo_id)
+            
+            jugador = await self.repository_jugador.obtener_por_id(int(body.get('jugador_id')))
+            print(jugador)
+            print(equipo)
+            if int(equipo.get('presupuesto')) >= jugador.get('precio'):
+                nuevo_presupuesto = int(equipo.get('presupuesto')) - int(jugador.get('precio'))
+                objeto_jugador = {
+                    'id': body.get('jugador_id'),
+                    'precio': jugador.get('precio'),
+                    'posicion': jugador.get('posicion'),
+                    'nombre': jugador.get('nombre'),
+                    'puntos': 0
+                }
+                datos ={
+                    'presupuesto': nuevo_presupuesto
+                }
+                print(jugador)
+                resultado = await self.reposiroty_equipo.agregar_jugador(equipo_id, objeto_jugador)
+                resultado_actualizar = await self.reposiroty_equipo.actualizar(equipo_id,datos)
+                print(resultado_actualizar)
+                print(resultado)
+                return resultado
+            
         except Exception as e:
             print('error', e)
 
@@ -194,11 +209,35 @@ class UsuarioControlador:
             return response_equipo
         except Exception as e:
             print(e)
-    
+    async def eliminar_jugador_equipo(self, body: dict):
+        try:
+            
+            jugador_id = body.get('jugador_id')
+            equipo_id = body.get('equipo_id')
+            equipo = await self.reposiroty_equipo.obtener_por_id(equipo_id)
+            presupuesto = equipo.get('presupuesto')
+            nuevo_presupuesto = 0
+            for i in equipo.get('jugadores_en_equipo',[]):
+                if i.get('id') == jugador_id:
+                    nuevo_presupuesto = presupuesto + i.get('precio')
+                else:
+                    nuevo_presupuesto = presupuesto
+            datos = {
+                'presupuesto': nuevo_presupuesto
+            }
+            print(datos)
+            actualizar_equipo = await self.reposiroty_equipo.actualizar(equipo_id=equipo_id,datos=datos)
+            response_equipo = await self.reposiroty_equipo.eliminar_jugador_equipo(equipo_id=equipo_id,jugador_id=jugador_id)
+            return response_equipo
+        except Exception as e:
+            print(e)
     async def obtener_jugadorPorRegex(self,nombre: str):
         try:
+            print(nombre)
             jugadores = []
             lista_jugadores = await self.repository_jugador.obtener_por_nombre_regex(nombre_jugador=nombre)
+            print(lista_jugadores)
+            
             for jugador in lista_jugadores:
                 data = {
                     'id': str(jugador.get('_id')),

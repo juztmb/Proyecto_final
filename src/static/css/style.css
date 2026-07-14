@@ -149,7 +149,10 @@
 
   /* stat strip */
   .stat-strip{
-    display:grid; grid-template-columns:repeat(2,1fr); border:1px solid var(--border); border-radius:14px; overflow:hidden;
+    display:grid; 
+    grid-template-columns:repeat(2,1fr); 
+    border:1px solid var(--border); 
+    border-radius:14px; overflow:hidden;
   }
   @media(max-width:768px){ .stat-strip{grid-template-columns:repeat(2,1fr);} }
   .stat-strip div{padding:26px 20px; border-right:1px solid var(--border); background:var(--card);}
@@ -166,7 +169,7 @@
   .step p{color:var(--muted); font-size:0.9rem; line-height:1.55; margin:0;}
 
   /* feature cards by position color */
-  .features{display:grid; grid-template-columns:repeat(4,1fr); gap:20px;}
+  .features{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
   @media(max-width:900px){ .features{grid-template-columns:repeat(2,1fr);} }
   @media(max-width:520px){ .features{grid-template-columns:1fr;} }
   .feat{
@@ -383,7 +386,7 @@
 
   /* ---------- STATS ---------- */
   .stat-strip{
-    display:grid; grid-template-columns:repeat(4,1fr); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:32px;
+    display:grid; grid-template-columns:repeat(2,1fr); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:32px;
   }
   @media(max-width:768px){ .stat-strip{grid-template-columns:repeat(2,1fr);} }
   .stat-strip div{padding:20px; border-right:1px solid var(--border); background:var(--card);}
@@ -499,3 +502,96 @@
     pointer-events:none; z-index:200;
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  /* Contenedor de las tarjetas */
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  max-height: 400px; /* Limita la altura del modal para que tenga scroll */
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* Diseño de cada tarjeta de jugador */
+.player-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.player-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+
+.player-info h4 {
+  margin: 4px 0;
+  font-size: 1rem;
+}
+
+.player-info p {
+  margin: 0 0 8px 0;
+  font-size: 0.85rem;
+}
+
+/* Botón de selección dentro de la tarjeta */
+.btn-select {
+  background-color: var(--cta);
+  color: var(--text);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.btn-select:hover {
+  background-color: var(--cta-hover);
+}
+
+/* Centrado para textos de carga o vacíos */
+.catalog-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: var(--border);
+}
+
+.player-position-badge {
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.player-position-Delantero{
+  background-color: var(--forward);
+}
+.player-position-Medio{
+  background-color: var(--mid);
+}
+.player-position-Defensa{
+  background-color: var(--defense);
+}
+.player-position-Portero{
+  background-color: var(--keeper);
+}
+
+/* Texto del Precio (Verde brillante) */
+.player-price {
+  color: #10b981; /* Verde esmeralda */
+  font-weight: bold;
+  font-size: 1rem;
+}

@@ -110,6 +110,15 @@ async def agregar_jugador_a_equipo(request: Request):
         return await controller.agregar_jugador_equipo(body)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+@router_cliente.delete('/deleteJugadorEquipo')
+async def eliminar_jugador_equipo(request : Request):
+    try:
+        body = await request.json()
+        return await controller.eliminar_jugador_equipo(body)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
 @router_cliente.get('/obtenerJugador/{nombre_id}')
 async def obtener_jugador_x_nombreReg(nombre_id : str ):
     try:

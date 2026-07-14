@@ -16,14 +16,10 @@
     <div class="logo">⚽ FANTASY <span>MUNDIAL 26</span></div>
     <ul class="nav-group">
       <li><button class="nav-item active"><span class="ic">🏠</span> Dashboard</button></li>
-      <li><button class="nav-item"><span class="ic">👥</span> Mis equipos</button></li>
-      <li><button class="nav-item"><span class="ic">🏆</span> Mi liga</button></li>
-      <li><button class="nav-item"><span class="ic">📊</span> Estadísticas</button></li>
-      <li><button class="nav-item"><span class="ic">⚙️</span> Configuración</button></li>
     </ul>
     <div class="sidebar-foot">
-      <div class="avatar">MR</div>
-      <div><strong>Mateo Rivas</strong><span>Manager</span></div>
+      <div class="avatar-persona">NN</div>
+      <div ><strong class="nombre-persona">NN</strong><span>Manager</span></div>
     </div>
   </aside>
 
@@ -42,11 +38,10 @@
       </div>
     </div>
 
-    <div class="stat-strip">
+    <div class="stat-strip" style="display: grid; grid-template-columns: repeat(3,1fr);">
       <div><strong id="statTeams">0</strong><span>equipos creados</span></div>
       <div><strong id="statPlayers">0</strong><span>jugadores en plantilla</span></div>
       <div><strong id="statPoints">0</strong><span>puntos totales</span></div>
-      <div><strong>#128</strong><span>posición en tu liga</span></div>
     </div>
 
     <div class="section-head">
@@ -88,37 +83,22 @@
 
 <!-- Modal: agregar jugador -->
 <div class="overlay" id="playerOverlay">
-  <div class="modal">
+  <div class="modal modal-wide">
     <div class="modal-head">
       <h3>Agregar jugador</h3>
       <button class="modal-close" onclick="closeModal('playerOverlay')">✕</button>
     </div>
-    <form onsubmit="return addPlayer(event)" class="form-modal">
-      <div class="field">
-        <label for="playerName">Nombre completo</label>
-        <input type="text" id="playerName" placeholder="Nombre del jugador" required>
-      </div>
-      <div class="field">
-        <label for="playerPos">Posición</label>
-        <select id="playerPos">
-          <option value="delantero">Delantero ⚡</option>
-          <option value="medio">Mediocampista 🎯</option>
-          <option value="defensa">Defensa 🛡️</option>
-          <option value="portero">Portero 🧤</option>
-        </select>
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label for="playerGoals">Goles / Atajadas</label>
-          <input type="number" id="playerGoals" min="0" value="0">
-        </div>
-        <div class="field">
-          <label for="playerAssists">Asistencias</label>
-          <input type="number" id="playerAssists" min="0" value="0">
-        </div>
-      </div>
-      <button type="submit" class="btn-primary" style="width:100%;">Agregar a la plantilla</button>
-    </form>
+ 
+    <div class="catalog-target" id="catalogTarget">Agregando a: —</div>
+ 
+    <div class="catalog-search">
+      🔍 <input type="text" id="catalogSearch" placeholder="Buscar jugador por nombre..." oninput="filterCatalog()">
+    </div>
+
+ 
+    <div class="catalog-grid" id="catalogGrid">
+      <div class="catalog-state"><div class="spinner"></div>Cargando jugadores del servidor...</div>
+    </div>
   </div>
 </div>
 

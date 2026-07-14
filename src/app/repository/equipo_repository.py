@@ -84,14 +84,44 @@ class EquipoRepository:
             UpdateResult: Resultado de la operación de actualización masiva
             (incluye cantidad de documentos encontrados y modificados).
         """
+        
         result = await self.collection.update_many(
-        { "jugadores_en_equipo.id": jugador_id},
+        { "jugadores_en_equipo.id": str(jugador_id)},
         { "$inc": { 
             f"jugadores_en_equipo.$.puntos": puntos,
             "puntos": puntos
             }})
+        print("Resultado  =", result)
         return result
-
+    
+    async def agregar_jugador(self, equipo_id: str, jugador_info: dict):
+        print(equipo_id)
+        print(jugador_info)
+        result = await self.collection.update_one(
+            {"_id": ObjectId(equipo_id)},
+            {
+                    "$addToSet": {
+                        "jugadores_en_equipo": {'id': jugador_info.get('id'), 'precio': jugador_info.get('precio'), 'posicion':jugador_info.get('posicion'), 'nombre': jugador_info.get('nombre'), 'puntos': jugador_info.get('puntos')}
+                    }
+            }
+        )
+        return {"modified": result.modified_count}
+    
+    async def eliminar_jugador_equipo(self, equipo_id, jugador_id):
+        result = await self.collection.update_one(
+            {'_id': ObjectId(equipo_id)},
+            {
+                "$pull": {
+                    "jugadores_en_equipo": {
+                        "id": str(jugador_id)
+                            }
+                    }
+            }
+        )
+        return {
+            "success": result.modified_count > 0
+        }
+    
     async def eliminar(self, equipo_id: str):
         """Elimina un equipo fantasy de la base de datos.
 
