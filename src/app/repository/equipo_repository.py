@@ -66,6 +66,20 @@ class EquipoRepository:
         return result.modified_count
     
     async def obtener_x_usuario_id(self, usuario_id):
+        """
+            Obtiene todos los equipos asociados a un usuario específico.
+
+            Args:
+                usuario_id: Identificador del usuario cuyos equipos se desean
+                    obtener. Debe coincidir con el tipo almacenado en el campo
+                    "id_usuario" de la colección (str, ObjectId, etc.).
+
+            Returns:
+                list[dict]: Lista con todos los documentos de equipos (en formato
+                    crudo de MongoDB) cuyo campo "id_usuario" coincide con el valor
+                    proporcionado. Retorna una lista vacía si el usuario no tiene
+                    equipos asociados.
+        """
         lista_equipos = await self.collection.find({'id_usuario': usuario_id}).to_list(length=None)
         return lista_equipos
     
@@ -95,6 +109,28 @@ class EquipoRepository:
         return result
     
     async def agregar_jugador(self, equipo_id: str, jugador_info: dict):
+        """
+            Agrega un jugador a la lista de jugadores de un equipo, evitando
+            duplicados (utilizando $addToSet).
+
+            Args:
+                equipo_id (str): Identificador del equipo al cual se desea
+                    agregar el jugador. Se convierte internamente a ObjectId.
+                jugador_info (dict): Diccionario con la información del jugador
+                    a agregar. Se esperan las siguientes claves:
+                        - id: Identificador del jugador.
+                        - precio: Precio del jugador.
+                        - posicion: Posición del jugador.
+                        - nombre: Nombre del jugador.
+                        - puntos: Puntos del jugador.
+                    Las claves ausentes se insertarán como None.
+
+            Returns:
+                dict: Diccionario con la forma {'modified': int}, donde el valor
+                    indica cuántos documentos fueron modificados (0 si el jugador
+                    ya existía en el equipo o si el equipo no fue encontrado, 1 si
+                    se agregó correctamente).
+        """
         print(equipo_id)
         print(jugador_info)
         result = await self.collection.update_one(
@@ -108,6 +144,21 @@ class EquipoRepository:
         return {"modified": result.modified_count}
     
     async def eliminar_jugador_equipo(self, equipo_id, jugador_id):
+        """
+        Elimina un jugador específico de la lista de jugadores de un equipo.
+
+        Args:
+            equipo_id: Identificador del equipo del cual se desea eliminar
+                al jugador. Se convierte internamente a ObjectId.
+            jugador_id: Identificador del jugador a eliminar. Se convierte
+                internamente a str para la comparación.
+
+        Returns:
+            dict: Diccionario con la forma {'success': bool}, donde el valor
+                es True si el jugador fue eliminado correctamente (al menos
+                un documento modificado), y False si no se encontró el
+                jugador en el equipo o el equipo no existe.
+        """
         result = await self.collection.update_one(
             {'_id': ObjectId(equipo_id)},
             {

@@ -3,7 +3,7 @@ from ..models import usuario_factory
 from ..repository import EquipoRepository
 from ..models import EquipoFantasy
 from ..repository import JugadorRepository
-
+from fastapi import FastAPI, HTTPException, status
 class UsuarioControlador:
     """Controlador encargado de la lógica de negocio de usuarios y equipos fantasy.
 
@@ -22,6 +22,19 @@ class UsuarioControlador:
         self.repository_jugador = JugadorRepository()
 
     async def obtener_por_correo(self, body:dict):
+        """
+            Verifica si ya existe un usuario registrado con el correo electrónico dado.
+
+            Args:
+                correo (str): Dirección de correo electrónico a verificar.
+
+            Returns:
+                dict: Diccionario indicando si el correo existe, con la forma:
+                    {'existe': True}  -> si se encontró un usuario con ese correo.
+                    {'existe': False} -> si no se encontró ningún usuario con ese correo.
+                Retorna None si ocurre una excepción durante la consulta.
+
+        """
         try:
             print(body)
             correo = body.get('correo',"")
@@ -51,6 +64,20 @@ class UsuarioControlador:
 
     
     async def verificar_email(self, correo: str):
+        """
+            Verifica si ya existe un usuario registrado con el correo electrónico dado.
+
+            Args:
+                correo (str): Dirección de correo electrónico a verificar.
+
+            Returns:
+                dict: Diccionario indicando si el correo existe, con la forma:
+                    {'existe': True}  -> si se encontró un usuario con ese correo.
+                    {'existe': False} -> si no se encontró ningún usuario con ese correo.
+                Retorna None si ocurre una excepción durante la consulta.
+
+        """
+
         try:
             print(correo)
             usuario = await self.repository_usuario.obtener_por_correo(correo)
@@ -66,6 +93,26 @@ class UsuarioControlador:
             print("error", e)
 
     async def obtener_equipos(self, usuario_id: str):
+        """
+            Obtiene la lista de equipos asociados a un usuario específico.
+
+            Args:
+                usuario_id (str): Identificador del usuario del cual se quieren
+                    obtener los equipos.
+
+            Returns:
+                list[dict]: Lista de diccionarios con los datos de cada equipo,
+                    con las siguientes claves:
+                        - id (str): Identificador del equipo (ObjectId convertido a str).
+                        - name (str): Nombre del equipo.
+                        - crest (str): Color representativo del equipo.
+                        - players (list): Jugadores que conforman el equipo.
+                        - points (int | float): Puntos acumulados por el equipo.
+                    Retorna una lista vacía si el usuario no tiene equipos asociados.
+                    Retorna None si ocurre una excepción durante la consulta.
+
+        """
+
         try:
             print(usuario_id)
             equipos = await self.reposiroty_equipo.obtener_x_usuario_id(usuario_id)
@@ -86,9 +133,7 @@ class UsuarioControlador:
                     lista_equipos.append(datos)
                 return lista_equipos
             else:
-                return{
-                    []
-                }
+                return []
         except Exception as e:
             print("error", e)
     async def crear(self, body:dict):
@@ -165,7 +210,17 @@ class UsuarioControlador:
                 print(resultado_actualizar)
                 print(resultado)
                 return resultado
-            
+            else:
+                print('fondos insuficientes')
+                raise ValueError("SALDO_INSUFICIENTE")
+        except ValueError as e:
+            raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "code": "FONDOS_INSUFICIENTES",
+                        "message": "No tiene fondos suficientes"
+                    }
+                    )
         except Exception as e:
             print('error', e)
 
@@ -231,7 +286,26 @@ class UsuarioControlador:
             return response_equipo
         except Exception as e:
             print(e)
+
     async def obtener_jugadorPorRegex(self,nombre: str):
+        """
+    Busca jugadores cuyo nombre coincida parcialmente con el valor proporcionado,
+    utilizando una búsqueda por expresión regular en el repositorio.
+
+    Args:
+        nombre (str): Texto (o patrón) a buscar dentro del nombre del jugador.
+
+    Returns:
+        list[dict]: Lista de diccionarios con los datos simplificados de cada
+            jugador encontrado, con las siguientes claves:
+                - id (str): Identificador del jugador (ObjectId convertido a str).
+                - nombre (str): Nombre del jugador.
+                - posicion (str): Posición del jugador.
+                - precio (float | int): Precio del jugador.
+                - equipo (str): Equipo al que pertenece el jugador.
+            Retorna None si ocurre una excepción durante la consulta.
+
+    """
         try:
             print(nombre)
             jugadores = []

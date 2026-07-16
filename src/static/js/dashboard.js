@@ -7,10 +7,10 @@ let teams = [
    
   ];
 async function verificarYFetch() {
-    // 1. Leer la variable del localStorage
+   
     const miVariable = localStorage.getItem('userinfo');
     
-    // 2. Verificar si existe (y si no está vacía)
+    
     if (miVariable) {
         console.log('Variable encontrada. Solicitando datos a la API local...');
         console.log(miVariable)
@@ -23,8 +23,7 @@ async function verificarYFetch() {
               iniciales.innerText = texto_iniciales.slice(0,2)
               nombreUser.innerText = texto_iniciales
             }
-            // 3. Hacer el llamado a tu API local
-            // Puedes pasar la variable en los headers, query params o en el body si fuera un POST
+          
             const usuario_id = JSON.parse(miVariable).id
             const respuesta = await fetch(`${API_BASE}/equiposByIdUsuario/${usuario_id}`);
             const respuestaJson = await respuesta.json()
@@ -35,7 +34,7 @@ async function verificarYFetch() {
 
             console.log(respuestaJson)
             
-            // 4. Hacer algo con la información recibida antes de que el usuario interactúe
+            
             console.log('Datos cargados con éxito:', respuestaJson);
             procesarDatosAPI(respuestaJson); 
 
@@ -49,13 +48,12 @@ async function verificarYFetch() {
     }
 }
 
-// Ejecutar justo cuando el DOM está listo, antes de cargar imágenes y estilos pesados
+
 document.addEventListener('DOMContentLoaded', verificarYFetch);
 
-// Función de ejemplo para manejar los datos recibidos
+
 function procesarDatosAPI(datos) {
     console.log(datos)
-    // Aquí manipulas el DOM o configuras tu app con los datos de la API
     datos.forEach((equipo) => teams.push(equipo));
     renderTeams()
 
@@ -64,8 +62,6 @@ function procesarDatosAPI(datos) {
 
 
 
-
-  // Estado local. Si el backend responde, se reemplaza con datos reales.
 
 
 let selectedTeamId = teams.length ? teams[0].id : null;
@@ -198,7 +194,6 @@ async function createTeam(e){
     teams.push(newTeam);
     selectedTeamId = newTeam.id;
 
-    // Ejemplo de sincronización con el backend real:
     const response = await fetch(`${API_BASE}/crear_equipo`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(newTeam) });
     const responseJson = await response.json()
     console.log(responseJson)
@@ -245,10 +240,6 @@ function addPlayer(e){
       return false;
     }
 
-    const nombre = document.getElementById('playerName').value.trim();
-    const posicion = document.getElementById('playerPos').value;
-    const goles = parseInt(document.getElementById('playerGoals').value) || 0;
-    const asistencias = parseInt(document.getElementById('playerAssists').value) || 0;
     if(!nombre) return false;
 
     const puntos = goles * 4 + asistencias * 3;
@@ -257,16 +248,7 @@ function addPlayer(e){
     team.players.push(newPlayer);
     team.points += puntos;
 
-    // Ejemplo de sincronización con el backend real (mismo payload que jugador_factory procesa):
-    // fetch(`${API_BASE}/jugadores`, {
-    //   method:'POST', headers:{'Content-Type':'application/json'},
-    //   body: JSON.stringify({ equipo_id: team.id, nombre, posicion, estadisticas:{ goles, asistencias } })
-    // });
-
-    document.getElementById('playerName').value = '';
-    document.getElementById('playerGoals').value = 0;
-    document.getElementById('playerAssists').value = 0;
-
+  
     closeModal('playerOverlay');
     renderTeams();
     renderRoster();
@@ -342,24 +324,8 @@ function showToast(msg){
     toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
   }
 
-  // Intento de carga real desde el backend (si está disponible), con fallback a los datos locales.
-async function tryLoadFromBackend(){
-    try{
-      const response = await fetch(`${API_BASE}/equipos`);
-      const data = await response.json();
-      if(Array.isArray(data) && data.length){
-        teams = data;
-        selectedTeamId = teams[0].id;
-      }
-    }catch(error){
-      // Servidor local apagado: se mantienen los datos de ejemplo.
-    }
-    renderTeams();
-    renderRoster();
-  }
-
 renderCrestPicker();
-tryLoadFromBackend();
+
 
 async function actualizarEquipo() {
     try {
@@ -385,37 +351,36 @@ async function actualizarEquipo() {
         }
 }
 
-// Variable global para controlar el temporizador del debounce
 let debounceTimer;
 
 function filterCatalog() {
   const query = document.getElementById('catalogSearch').value.trim();
   const grid = document.getElementById('catalogGrid');
 
-  // Limpiar el temporizador anterior cada vez que el usuario presione una tecla
+  
   clearTimeout(debounceTimer);
 
-  // Si el buscador está vacío, puedes limpiar el grid o mostrar un mensaje
+  
   if (query === '') {
     grid.innerHTML = '<div class="catalog-state">Escribe el nombre de un jugador para buscar...</div>';
     return;
   }
 
-  // Mostrar indicador de carga mientras espera a que termine de escribir
+  
   grid.innerHTML = '<div class="catalog-state"><div class="spinner"></div>Buscando...</div>';
 
-  // Esperar 500ms después de que el usuario deje de escribir para hacer la petición
+  
   debounceTimer = setTimeout(() => {
     fetchPlayersFromServer(query);
   }, 500); 
 }
 
-// Función que realiza la petición al servidor
+
 async function fetchPlayersFromServer(query) {
   const grid = document.getElementById('catalogGrid');
 
   try {
-    // Reemplaza esta URL por la de tu API real
+    
     const response = await fetch(`${API_BASE}/obtenerJugador/${query}`);
     
     if (!response.ok) {
@@ -423,8 +388,6 @@ async function fetchPlayersFromServer(query) {
     }
 
     const players = await response.json();
-    
-    // Renderizar las tarjetas con los datos obtenidos
     renderPlayerCards(players);
 
   } catch (error) {
@@ -433,22 +396,21 @@ async function fetchPlayersFromServer(query) {
   }
 }
 
-// Función para crear y renderizar las tarjetas en el HTML
+
 function renderPlayerCards(players) {
   const grid = document.getElementById('catalogGrid');
-  grid.innerHTML = ''; // Limpiar el estado de carga
+  grid.innerHTML = '';
 
   if (players.length === 0) {
     grid.innerHTML = '<div class="catalog-state">No se encontraron jugadores.</div>';
     return;
   }
 
-  // Iterar sobre la lista de jugadores y crear el HTML de las tarjetas
+  
   players.forEach(player => {
     const card = document.createElement('div');
     card.className = 'player-card';
     
-    // Estructura de la tarjeta (ajusta las propiedades según tu base de datos, ej: player.name, player.photo, etc.)
     card.innerHTML = `
       <div class="player-info ${player.id}">
         <h4>${player.nombre}</h4>
@@ -463,11 +425,10 @@ function renderPlayerCards(players) {
   });
 }
 
-// Acción de ejemplo para cuando se hace clic en una tarjeta
+
 async function selectPlayer(id, name) {
   console.log(selectedTeamId);
-  //agregar_jugador
-  //
+
   try{
   const response = await fetch(`${API_BASE}/agregar_jugador`, 
       { method:'POST', 
@@ -475,12 +436,27 @@ async function selectPlayer(id, name) {
         body: JSON.stringify({'jugador_id': id, 'equipo_id': selectedTeamId}) 
       });
     const responseJson = await response.json()
-    await actualizarEquipo();
-    renderTeams();
-    renderRoster();
-    closeModal('playerOverlay');
+    console.log(responseJson)
+    if (!response.ok) {
+      console.log(responseJson.detail)
+        switch (responseJson.detail.code) {
+            case "FONDOS_INSUFICIENTES":
+                console.log('fondos')
+                alert('No cuentas con el dinero suficiente para este jugador')
+                break;
+        }
+    }
+    else{
+      await actualizarEquipo();
+      renderTeams();
+      renderRoster();
+      closeModal('playerOverlay');
+    }
+  
+    
   }
   catch(error){
+    console.log('error')
     alert('ocurrio un error al agregar el jugador')
   }
   

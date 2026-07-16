@@ -40,8 +40,26 @@ class JugadorRepository:
         """
         jugador = await self.collection.find_one({"_id": jugador_id})
         return jugador
-    async def obtener_por_nombre_regex(self,nombre_jugador: str):
-        lista_jugadores= await self.collection.find({
+    
+    async def obtener_por_nombre_regex(self, nombre_jugador: str):
+        """
+            Busca en la base de datos jugadores cuyo nombre coincida parcialmente
+            (sin distinguir mayúsculas/minúsculas) con el texto proporcionado,
+            limitando el resultado a un máximo de 10 documentos.
+
+            Args:
+                nombre_jugador (str): Texto o patrón a buscar dentro del campo
+                    "nombre" de los jugadores. Se escapa automáticamente con
+                    `re.escape` para evitar que caracteres especiales de regex
+                    (como '.', '*', '(', etc.) sean interpretados como parte
+                    de la expresión regular.
+
+            Returns:
+                list[dict]: Lista de hasta 10 documentos de jugadores (en formato
+                    crudo de MongoDB) que coinciden con el nombre buscado. Retorna
+                    una lista vacía si no se encuentra ningún jugador.
+        """
+        lista_jugadores = await self.collection.find({
             "nombre": {
                 "$regex": re.escape(nombre_jugador),
                 "$options": "i"
