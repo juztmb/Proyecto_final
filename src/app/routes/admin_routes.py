@@ -77,7 +77,7 @@ async def obtener_usuario_id(usuario_id: str):
 
 
 @router_administrador.delete("/del/{usuario_id}")
-async def eliminar_jugador(usuario_id: str):
+async def eliminar_administrador(usuario_id: str):
     """Elimina un usuario de la base de datos.
 
     Args:
